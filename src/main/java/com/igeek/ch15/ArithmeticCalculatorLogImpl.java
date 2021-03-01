@@ -50,6 +50,14 @@ public class ArithmeticCalculatorLogImpl {
 
                 Object result = null;
                 try {
+                    for (Object arg : args) {
+                        int a = (int)arg;
+                        if(a<=0){
+                            System.out.println("the method "+methodName+" 参数为非正数....");
+                            return null;
+                        }
+                    }
+
                     //执行目标方法
                     result = method.invoke(target, args);
 

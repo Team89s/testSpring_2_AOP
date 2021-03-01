@@ -22,7 +22,7 @@ public class Test {
 
         System.out.println("======================");
 
-        int result2 = proxy.div(20, 0);
+        int result2 = proxy.div(20, -10);
         System.out.println("result1 = "+result2);
     }
 
