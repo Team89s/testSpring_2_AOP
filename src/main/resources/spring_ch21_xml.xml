@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置计算器实现类的bean -->
+    <bean class="com.igeek.ch21.xml.ArithmeticCalculatorImpl" id="c"></bean>
+
+    <!-- 配置日志切面的bean -->
+    <bean class="com.igeek.ch21.xml.LogAspect" id="log"></bean>
+
+    <!-- 配置校验参数切面的bean -->
+    <bean class="com.igeek.ch21.xml.ValidateAspect" id="validate"></bean>
+
+
+    <!-- AOP配置 -->
+    <aop:config>
+
+        <!--
+            重用切点表达式
+            1.当前所在位置的作用域，可以给所有的切面进行使用
+            2.id属性：唯一标识
+            3.expression属性：切点表达式
+        -->
+        <aop:pointcut id="p" expression="execution(* com.igeek.ch21.xml.ArithmeticCalculatorImpl.*(..))" />
+
+        <!--
+            日志切面
+            1.id属性：唯一标识
+            2.ref属性：指定当前哪个bean作为切面使用
+            3.order属性：决定切面的执行顺序，值越小越先执行
+        -->
+        <aop:aspect id="logAspect" ref="log" order="2">
+            <!-- 仅供当前日志切面进行使用 -->
+            <!--<aop:pointcut id="" expression=""/>-->
+
+            <!--
+                前置通知
+                1.method属性：指向的是ref的bean中的方法
+                2.pointcut-ref属性：指向重用切点表达式
+                3.pointcut="" 属性：当前切点的作用域仅仅只在当前的通知中
+            -->
+            <aop:before method="beforeAdvice" pointcut-ref="p" ></aop:before>
+
+            <aop:after method="afterAdvice" pointcut-ref="p"></aop:after>
+
+            <!--
+                返回通知
+                returning属性：必须与ref的bean中的方法形参名称一致，用来接收目标方法执行的结果
+            -->
+            <aop:after-returning method="afterReturningAdvice" pointcut-ref="p" returning="result"></aop:after-returning>
+
+            <!--
+                异常通知
+                throwing属性：必须与ref的bean中的方法形参名称一致，用来接收目标方法出现的异常信息
+            -->
+            <aop:after-throwing method="afterThrowingAdvice" pointcut-ref="p" throwing="ex"></aop:after-throwing>
+
+        </aop:aspect>
+
+
+        <!-- 参数校验切面 -->
+        <aop:aspect id="validateAspect" ref="validate" order="1">
+            <!-- 环绕通知 -->
+            <aop:around method="validate" pointcut-ref="p"></aop:around>
+        </aop:aspect>
+
+
+        <!-- 声明引入通知 -->
+        <aop:aspect>
+            <!--
+                1.types-matching属性：作用在哪里
+                2.implement-interface属性：实现的接口
+                3.default-impl属性：实现类
+            -->
+            <aop:declare-parents
+                    types-matching="com.igeek.ch21.xml.ArithmeticCalculatorImpl"
+                    implement-interface="com.igeek.ch21.xml.declare.IMax"
+                    default-impl="com.igeek.ch21.xml.declare.MaxImpl"></aop:declare-parents>
+
+            <aop:declare-parents
+                    types-matching="com.igeek.ch21.xml.ArithmeticCalculatorImpl"
+                    implement-interface="com.igeek.ch21.xml.declare.IMin"
+                    default-impl="com.igeek.ch21.xml.declare.MinImpl"></aop:declare-parents>
+        </aop:aspect>
+
+    </aop:config>
+
+
+
+</beans>
